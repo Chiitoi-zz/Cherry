@@ -1,0 +1,13 @@
+# Dist
+dist
+
+# Environment
+.env
+
+# Packages
+node_modules
+
+# Random
+.vscode
+assets
+config.json
