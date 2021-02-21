@@ -30,6 +30,6 @@ export default class RateLimitListener extends Listener {
             title: 'Rate limit hit!'
         }
 
-        await logChannel.send(embed)
+        return logChannel.send(embed)
     }
 }

@@ -10,7 +10,7 @@ export default class ReadyListener extends Listener {
     }
 
     public async exec() {
-        await this.client.user?.setActivity(`@${ this.client.user?.username } guide`, { type: 'LISTENING' })
-        console.log(`${ this.client.user?.tag } is online!`)
+        await this.client.user.setActivity(`@${ this.client.user.username } guide`, { type: 'LISTENING' })
+        console.log(`${ this.client.user.tag } is online!`)
     }
 }

@@ -15,7 +15,7 @@ export default class CherryClient extends AkairoClient {
     public config: CherryConfig
     public commandHandler = new CommandHandler(this, {
         directory: join(__dirname, '..', 'commands'),
-        prefix: this.config.prefix,
+        prefix: config.prefix,
         aliasReplacement: /-/g,
         allowMention: true,
         commandUtil: false,
@@ -28,7 +28,7 @@ export default class CherryClient extends AkairoClient {
     public queue = new PQueue({
         autoStart: true,
         concurrency: 1,
-        interval: this.config.interval,
+        interval: config.interval,
         intervalCap: 1
     })
     public constructor() {

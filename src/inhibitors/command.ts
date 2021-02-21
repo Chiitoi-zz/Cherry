@@ -9,8 +9,8 @@ export default class CommandInhibitor extends Inhibitor {
     }
 
     public exec(message: Message) {
-        const { channel: { id: channelId }, member } = message
-        const isAdmin = member!.permissions.has('ADMINISTRATOR')
+        const { channel: { id: channelId }, member: { permissions } } = message
+        const isAdmin = permissions.has('ADMINISTRATOR')
         const list = this.client.config.botChannelIds
         const inList = list.includes(channelId)
 
@@ -18,6 +18,6 @@ export default class CommandInhibitor extends Inhibitor {
             return true
         if (!isAdmin && !inList)
             return true
-        return false  
+        return false
     }
 }

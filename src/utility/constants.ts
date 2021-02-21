@@ -51,7 +51,7 @@ export const EMBEDS = {
                     name: 'Stats',
                     value: [
                         `- ${ good }/${ total} good invites (${ (100 * good / total).toFixed(2) }% 🟢)`,
-                        `- ${ bad}/${ total} bad invites (${ (100 * bad / total).toFixed(2) }% 🔴)`,
+                        `- ${ bad }/${ total} bad invites (${ (100 * bad / total).toFixed(2) }% 🔴)`,
                     ]
                 }
             ]
@@ -64,6 +64,14 @@ export const EMBEDS = {
 // <> = Required
 export const MESSAGES = {
     COMMANDS: {
+        CHECK: {
+            DESCRIPTION: 'Runs an invite check on provided categories.',
+            USAGE: 'check'
+        },
+        GUIDE: {
+            DESCRIPTION: 'A guide to the bot.',
+            USAGE: 'guide'
+        },
         HELP: {
             DESCRIPTION: 'Displays all available commands, including information about a specific command or category.',
             USAGE: 'help [query]',
@@ -76,6 +84,18 @@ export const MESSAGES = {
         PING: {
             DESCRIPTION: 'Checks server latency.',
             USAGE: 'ping'
+        },
+        SETTINGS: {
+            DESCRIPTION: 'Displays a guild\'s current settings.',
+            USAGE: 'settings'
+        },
+        STATE: {
+            DESCRIPTION: 'Displays status of invite check.',
+            USAGE: 'state'
+        },
+        STATS: {
+            DESCRIPTION: 'Displays bot information.',
+            USAGE: 'stats'
         },
         SUPPORT: {
             DESCRIPTION: 'Gets the invite link for Sakura\'s support server.',
