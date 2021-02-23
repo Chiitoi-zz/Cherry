@@ -1,5 +1,6 @@
-import type { MessageEmbed, TextChannel } from 'discord.js'
 import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, SERVER_ID, TOKEN } from '../config'
+import type { MessageEmbed, TextChannel } from 'discord.js'
+import pms from 'pretty-ms'
 
 export interface CherryConfig {
     botChannelIds: string[]
@@ -50,17 +51,18 @@ export const EMBEDS = {
 
         return { embed }
     },
-    RESULTS: (bad: number, channels: number, good: number, total: number) => {
+    RESULTS: (bad: number, channels: number, good: number, total: number, elapsedTimeMilliseconds: number) => {
         const embed: Partial<MessageEmbed> = {
             color: 16316671,
             fields: [
                 { inline: false, name: 'Check counts', value: [`Channels checked: ${ channels }`, `Invites checked: ${ total }`].join('\n') },
+                { inline: false, name: 'Elapsed time', value: pms(elapsedTimeMilliseconds, { secondsDecimalDigits: 0, separateMilliseconds: true }) },
                 {
                     inline: false,
                     name: 'Stats',
                     value: [
-                        `- ${ good }/${ total} good invites (${ (100 * good / total).toFixed(2) }% 🟢)`,
-                        `- ${ bad }/${ total} bad invites (${ (100 * bad / total).toFixed(2) }% 🔴)`,
+                        `- ${ good }/${ total } good invites (${ (100 * good / total).toFixed(2) }% 🟢)`,
+                        `- ${ bad }/${ total } bad invites (${ (100 * bad / total).toFixed(2) }% 🔴)`
                     ].join('\n')
                 }
             ],
@@ -76,7 +78,8 @@ export const EMBEDS = {
     }
 }
 
-export const InviteLinkRegex = /^(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.com\/invite|\.gg)\/(?<code>[\w\d-]{2,})$/i
+export const InviteLinkRegex = /(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.com\/invite|\.gg)\/(?<code>[a-z0-9-]+)/gi
+///^(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.com\/invite|\.gg)\/(?<code>[\w\d-]{2,})$/gi
 
 // [] = Optional
 // <> = Required

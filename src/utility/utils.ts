@@ -4,9 +4,7 @@ import { Collection, Message, NewsChannel, TextChannel } from 'discord.js'
 export const extractCodes = (messages: Collection<string, Message>) => {
     const matches = messages.reduce((acc, message) => {
         const { content } = message
-        const results = new RegExp(InviteLinkRegex).exec(JSON.stringify(content))
-        
-        console.log(results)
+        const results = JSON.stringify(content).matchAll(InviteLinkRegex) 
         
         return [...acc, ...results]
     }, [])

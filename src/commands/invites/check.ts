@@ -42,6 +42,7 @@ export default class CheckCommand extends Command {
         const inviteTask = (code: string) => () => handle(this.client.fetchInvite(code))
 
         this.client.inCheck = true
+        const check = process.hrtime()
         checkChannel.send(MESSAGES.INFO.CHECK_START(this.client.user.username))
         let goodInvites = 0, badInvites = 0, totalChannels = 0, totalInvites = 0
 
@@ -101,8 +102,11 @@ export default class CheckCommand extends Command {
             checkChannel.send(EMBEDS.CATEGORY(categoryName, resultsDescription, issuesDescription))
         }
 
-        checkChannel.send(MESSAGES.INFO.CHECK_COMPLETE)
-        checkChannel.send(EMBEDS.RESULTS(badInvites, totalChannels, goodInvites, totalInvites))
         this.client.inCheck = false
+        const time = process.hrtime(check)
+        const elapsedTimeMilliseconds = ((time[0] * 1e9) + time[1]) / 1e6
+
+        checkChannel.send(MESSAGES.INFO.CHECK_COMPLETE)
+        checkChannel.send(EMBEDS.RESULTS(badInvites, totalChannels, goodInvites, totalInvites, elapsedTimeMilliseconds))
     }
 }
