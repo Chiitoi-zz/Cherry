@@ -1,3 +1,4 @@
+import type { MessageEmbed, TextChannel } from 'discord.js'
 import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, SERVER_ID, TOKEN } from '../config'
 
 export interface CherryConfig {
@@ -26,39 +27,56 @@ export const config: CherryConfig = {
 
 export const EMBEDS = {
     CATEGORY: (categoryName: string, resultsDescription?: string, issuesDescription?: string[]) => {
-        const embed: any = {
-            title: `The "${ categoryName }" category`,
-            color: 'F8F8FF',
+        const embed: Partial<MessageEmbed> = {
+            color: 16316671,
             description: resultsDescription ?? 'No channels to check in this category.',
             footer: { text: `Checked ${ resultsDescription ? 8 : 0 } messages` },
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            title: `The "${ categoryName }" category`,
         }
 
         if (issuesDescription?.length)
-            embed!.fields = [{ name: 'Issues', value: issuesDescription }]
+            embed!.fields = [{ inline: false, name: 'Issues', value: issuesDescription.join('\n') }]
 
         return { embed }
     },
-    INFO: (description: string) => ({ embed: { description, color: 'F8F8FF' } }),
-    ERROR: (description: string) => ({ embed: { description, color: 'B00020' } }),
-    RESULTS: (bad: number, channels: number, good: number, total: number) => ({
-        embed: {
-            title: 'Invite check results',
-            color: 'F8F8FF',
+    INFO: (description: string) => {
+        const embed: Partial<MessageEmbed> = { color: 16316671, description }
+
+        return { embed }
+    },
+    ERROR: (description: string) => {
+        const embed: Partial<MessageEmbed> = { color: 11534368, description }
+
+        return { embed }
+    },
+    RESULTS: (bad: number, channels: number, good: number, total: number) => {
+        const embed: Partial<MessageEmbed> = {
+            color: 16316671,
             fields: [
-                { name: 'Check counts', value: [`Channels checked: ${ channels }`, `Invites checked: ${ total }`] },
+                { inline: false, name: 'Check counts', value: [`Channels checked: ${ channels }`, `Invites checked: ${ total }`].join('\n') },
                 {
+                    inline: false,
                     name: 'Stats',
                     value: [
                         `- ${ good }/${ total} good invites (${ (100 * good / total).toFixed(2) }% 🟢)`,
                         `- ${ bad }/${ total} bad invites (${ (100 * bad / total).toFixed(2) }% 🔴)`,
-                    ]
+                    ].join('\n')
                 }
-            ]
+            ],
+            title: 'Invite check results'
         }
-    }),
-    SUCCESS: (description: string) => ({ embed: { description, color: '00B020' } })
+
+        return { embed }
+    },
+    SUCCESS: (description: string) => {
+        const embed: Partial<MessageEmbed> = { color: 45088, description }
+
+        return { embed }
+    }
 }
+
+export const InviteLinkRegex = /^(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.com\/invite|\.gg)\/(?<code>[\w\d-]{2,})$/i
 
 // [] = Optional
 // <> = Required
@@ -103,9 +121,16 @@ export const MESSAGES = {
         }
     },
     INFO: {
-        NO_MATCH: EMBEDS.INFO('No match found.')
+        CHECK_START: (botName: string) => EMBEDS.INFO(`An invite check is currently in progress. Please give ${ botName } a few hours to check your channels.`),
+        CHECK_COMPLETE: EMBEDS.SUCCESS('Invite check complete!'),
+        IN_CHECK: EMBEDS.INFO('You already have an invite check in progress. Please wait until your current invite check ends before running another one.'),
+        NO_CATEGORIES: EMBEDS.INFO('There are no categories to check. Please provide category channel IDs in your `.env` file.'),
+        NO_CHECK: EMBEDS.INFO('You do not have an invite check in progress.'),
+        NO_MATCH: EMBEDS.INFO('No match found.'),
+        WRONG_CHANNEL: (channel: TextChannel) => EMBEDS.INFO(`This command can only be run in ${ channel }.`)
     },
     ERRORS: {
+        CHECK_CHANNEL: EMBEDS.ERROR('Please provide a valid **text** channel ID in your `.env` file.'),
 
     },
     STATES: {

@@ -7,12 +7,14 @@ import { join } from 'path'
 declare module 'discord-akairo' {
     interface AkairoClient {
         config: CherryConfig
+        inCheck: boolean
         queue: PQueue
     }
 }
 
 export default class CherryClient extends AkairoClient {
     public config: CherryConfig
+    public inCheck: boolean
     public commandHandler = new CommandHandler(this, {
         directory: join(__dirname, '..', 'commands'),
         prefix: config.prefix,
@@ -48,7 +50,9 @@ export default class CherryClient extends AkairoClient {
                 }
             }
         )
+        
         this.config = config
+        this.inCheck = false
     }
 
     private async init() {
