@@ -52,7 +52,7 @@ export default class CheckCommand extends Command {
                 .filter(({ id, type }) => ['news', 'text'].includes(type) && !ignoreIds.includes(id)) as Collection<string, NewsChannel | TextChannel>
 
             if (!childChannels.size) {
-                message.util.send(EMBEDS.CATEGORY(categoryName))
+                message.channel.send(EMBEDS.CATEGORY(categoryName))
                 continue
             }
 
