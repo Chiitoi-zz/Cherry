@@ -10,7 +10,7 @@ export default class CheckCommand extends Command {
             category: 'Invites',
             channel: 'guild',
             description: {
-                text: MESSAGES.COMMANDS.CHECK.DESCRIPTION,
+                text: MESSAGES.COMMANDS.CHECK.TEXT,
                 usage: MESSAGES.COMMANDS.CHECK.USAGE
             },
             userPermissions: ['ADMINISTRATOR']

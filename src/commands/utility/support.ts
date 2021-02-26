@@ -9,7 +9,7 @@ export default class PingCommand extends Command {
             category: 'Utility',
             channel: 'guild',
             description: {
-                text: MESSAGES.COMMANDS.SUPPORT.DESCRIPTION,
+                text: MESSAGES.COMMANDS.SUPPORT.TEXT,
                 usage: MESSAGES.COMMANDS.SUPPORT.USAGE
             }
         })

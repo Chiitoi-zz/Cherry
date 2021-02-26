@@ -11,7 +11,7 @@ export default class StatsCommand extends Command {
             category: 'Utility',
             channel: 'guild',
             description: {
-                text: MESSAGES.COMMANDS.STATS.DESCRIPTION,
+                text: MESSAGES.COMMANDS.STATS.TEXT,
                 usage: MESSAGES.COMMANDS.STATS.USAGE
             }
         })

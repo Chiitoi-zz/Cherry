@@ -90,40 +90,40 @@ export const InviteLinkRegex = /(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.co
 export const MESSAGES = {
     COMMANDS: {
         CHECK: {
-            DESCRIPTION: 'Runs an invite check on provided categories.',
+            TEXT: 'Runs an invite check on provided categories.',
             USAGE: 'check'
         },
         GUIDE: {
-            DESCRIPTION: 'A guide to the bot.',
+            TEXT: 'A guide to the bot.',
             USAGE: 'guide'
         },
         HELP: {
-            DESCRIPTION: 'Displays all available commands, including information about a specific command or category.',
+            TEXT: 'Displays all available commands, including information about a specific command or category.',
             USAGE: 'help [query]',
             EXAMPLES: ['help ping', 'help category']
         },
         IDS: {
-            DESCRIPTION: 'Displays a list of all category IDs in a server.',
+            TEXT: 'Displays a list of all category IDs in a server.',
             USAGE: 'ids'
         },
         PING: {
-            DESCRIPTION: 'Checks server latency.',
+            TEXT: 'Checks server latency.',
             USAGE: 'ping'
         },
         SETTINGS: {
-            DESCRIPTION: 'Displays a guild\'s current settings.',
+            TEXT: 'Displays a guild\'s current settings.',
             USAGE: 'settings'
         },
         STATE: {
-            DESCRIPTION: 'Displays status of invite check.',
+            TEXT: 'Displays status of invite check.',
             USAGE: 'state'
         },
         STATS: {
-            DESCRIPTION: 'Displays bot information.',
+            TEXT: 'Displays bot information.',
             USAGE: 'stats'
         },
         SUPPORT: {
-            DESCRIPTION: 'Gets the invite link for Sakura\'s support server.',
+            TEXT: 'Gets the invite link for Sakura\'s support server.',
             USAGE: 'support'
         }
     },

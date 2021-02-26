@@ -9,7 +9,7 @@ export default class GuideCommand extends Command {
             category: 'Utility',
             channel: 'guild',
             description: {
-                text: MESSAGES.COMMANDS.GUIDE.DESCRIPTION,
+                text: MESSAGES.COMMANDS.GUIDE.TEXT,
                 usage: MESSAGES.COMMANDS.GUIDE.USAGE
             }
         })

@@ -9,7 +9,7 @@ export default class IdsCommand extends Command {
             category: 'Admin',
             channel: 'guild',
             description: {
-                text: MESSAGES.COMMANDS.IDS.DESCRIPTION,
+                text: MESSAGES.COMMANDS.IDS.TEXT,
                 usage: MESSAGES.COMMANDS.IDS.USAGE
             },
             userPermissions: ['ADMINISTRATOR']

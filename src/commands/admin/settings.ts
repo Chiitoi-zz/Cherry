@@ -10,7 +10,7 @@ export default class SettingsCommand extends Command {
             category: 'Admin',
             channel: 'guild',
             description: {
-                text: MESSAGES.COMMANDS.SETTINGS.DESCRIPTION,
+                text: MESSAGES.COMMANDS.SETTINGS.TEXT,
                 usage: MESSAGES.COMMANDS.SETTINGS.USAGE
             },
             userPermissions: ['ADMINISTRATOR']

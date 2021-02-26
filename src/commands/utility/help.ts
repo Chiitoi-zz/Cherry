@@ -20,7 +20,7 @@ export default class HelpCommand extends Command {
             channel: 'guild',
             description: {
                 examples: MESSAGES.COMMANDS.HELP.EXAMPLES,
-                text: MESSAGES.COMMANDS.HELP.DESCRIPTION,
+                text: MESSAGES.COMMANDS.HELP.TEXT,
                 usage: MESSAGES.COMMANDS.HELP.USAGE
             }
         })
