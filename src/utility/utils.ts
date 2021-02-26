@@ -28,7 +28,7 @@ export const formatChannels = (channelIds: string[], type: 'category' | 'text') 
             acc += `${ channelId }, `
         return acc
     }, '')
-    const text = `${ channelText } ${ length >=1 ? `is an invalid ${ type } channel ID` : `are invalid ${ type } channel IDs` }.`
+    const text = `${ channelText } ${ length <= 1 ? `is an invalid ${ type } channel ID` : `are invalid ${ type } channel IDs` }.`
 
     return text    
 }
@@ -91,6 +91,7 @@ const getType = (type: string): 'LISTENING' | 'PLAYING' | 'WATCHING' => {
 
 export const validate = (client: AkairoClient) => {
     let valid = true
+    const botName = client.user.username
     const { activityName, activityType, botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, serverId } = client.config
     const guild = client.guilds.cache.get(serverId)
     const states = {
@@ -106,48 +107,81 @@ export const validate = (client: AkairoClient) => {
         'SERVER_ID': { message: '' },
     }
 
-    if (!serverId)
+    if (!serverId) {
         states['SERVER_ID'].message = chalk`{red ${ 'SERVER_ID' }} - {white ${ 'Please provide the server ID this bot will be on.' }}`
-    if (!guild)
-        states['SERVER_ID'].message = chalk`{red ${ 'SERVER_ID' }} - {white ${ 'Please provide a valid server ID.' }}`
+        valid = false
+    }
+    if (!guild) {
+        states['SERVER_ID'].message = chalk`{red ${ 'SERVER_ID' }} - {white ${ 'Please provide a valid server ID the bot is in.' }}`
+        valid = false
+    }
     if (guild) {
         const guildChannels = guild.channels.cache
         const invalidBotChannelIds = [...new Set(botChannelIds)].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
         const invalidCategoryIds = [...new Set(categoryIds)].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'category')
+        const invalidCheckChannelId = [checkChannelId].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
         const invalidIgnoreIds = [...new Set(ignoreIds)].filter(channelId => !guildChannels.has(channelId) || !['news', 'text'].includes(guildChannels.get(channelId).type))
+        const invalidLogChannelId = [logChannelId].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
 
-        if (invalidBotChannelIds.length)
-            states['BOT_CHANNEL_IDS'].message = chalk`{red ${ 'BOT_CHANNEL_IDS' }} - {white ${ formatChannels(invalidBotChannelIds, 'text') }}`
-
-
+        if (invalidBotChannelIds.length) {
+            states['BOT_CHANNEL_IDS'].message = chalk`{red ${ '[BOT_CHANNEL_IDS]' }} - {white ${ formatChannels(invalidBotChannelIds, 'text') }}`
+            valid = false
+        }
+        if (invalidCategoryIds.length) {
+            states['CATEGORY_IDS'].message = chalk`{red ${ '[CATEGORY_IDS]' }} - {white ${ formatChannels(invalidCategoryIds, 'category') }}`
+            valid = false
+        }
+        if (invalidCheckChannelId.length) {
+            states['CHECK_CHANNEL_ID'].message = chalk`{red ${ '[CHECK_CHANNEL_ID]' }} - {white ${ formatChannels(invalidCheckChannelId, 'text') }}`
+            valid = false
+        }
+        if (invalidIgnoreIds.length) {
+            states['IGNORE_IDS'].message = chalk`{red ${ '[IGNORE_IDS]' }} - {white ${ formatChannels(invalidIgnoreIds, 'text') }}`
+            valid = false
+        }
+        if (invalidLogChannelId.length) {
+            states['LOG_CHANNEL_ID'].message = chalk`{red ${ '[LOG_CHANNEL_ID]' }} - {white ${ formatChannels(invalidLogChannelId, 'text') }}`
+            valid = false
+        }
+    }
+    if ((interval < 1000) || (interval > 5000)) {
+        states['INTERVAL'].message = chalk`{red ${ '[INTERVAL]' }} - {white ${ 'Please use a positive integer between 1000 - 5000.' }}`
+        valid = false
     }
 
-    for (const { message } of Object.values(states)) {
-        if (message.length)
-            console.log(message)
+    const reDigit = /^[0-9]/
+    const reSpecial = /[~`!@#\$%\^&*()-_\+={}\[\]|\\\/:;"'<>,.?]/g
+    const reSpaces = /\s/
+    const validPrefix = !reDigit.test(prefix) && reSpecial.test(prefix) && !reSpaces.test(prefix) && (prefix.length <= 3)
+
+    if (!validPrefix) {
+        states['PREFIX'].message = chalk`{red ${ '[PREFIX]' }} - {white ${ 'Bot prefix must not contain spaces, not contain spaces, have at least one special character, and be a maximum of three characters.' }}`
+        valid = false
+    }
+    
+    const validActivityName = activityName?.length <= 40
+    const validActivityTypes = ['listening to', 'playing', 'watching']
+    const validActivityType = !!activityType?.length && validActivityTypes.includes(activityType?.toLowerCase())
+    
+    if (!validActivityName)
+        console.log(chalk`{bold ${ '[INFO]' }} - ${ activityName?.length ? 'Provided activity name must be fewer than 40 characters. ' : '' }The default activity name will be used for the bot status.`)
+    if (!validActivityType)
+        console.log(chalk`{bold ${ '[INFO]' }} - ${ activityType?.length ? 'Provided activity type must be either "listening to", "playing", or "watching". ' : ''}The default activity type will be used for the bot status.`)
+    if (client.guilds.cache?.size > 1)
+        console.log(chalk`{bold ${ '[INFO]' }} - ${ botName } is in ${ client.guilds.cache.size } servers. Please ensure that your ${ botName } is only in the one server it's supposed to be in.`)
+    
+    console.log()
+
+    if (!valid) {
+        console.log(chalk`{bold.underline ${ `Please fix the following errors and restart ${ botName }:` }}`)
+        for (const { message } of Object.values(states)) {
+            if (message.length)
+                console.log(message)
+        }
+
+        process.exit(0)
     }
 
-    
-    
-    return null
-
-    // const validActivityName = activityName?.length <= 40
-    // const validActivityTypes = ['listening to', 'playing', 'watching']
-    // const validActivityType = activityType?.length && validActivityTypes.includes(activityType.toLowerCase())
-    
-    // if (!validActivityName) {
-    //     console.log(chalk`{red ${ 'ACTIVITY_NAME' }} - {white ${ 'Must be fewer than 40 characters. The default activity name will be used here.' }}`)
-    //     valid = false
-    // }
-    // if (!validActivityType) {
-    //     console.log(chalk`{red ${ 'ACTIVITY_TYPE' }} - {white ${ 'Must be either "listening to", "playing", or "watching". The default activity type will be used here.' }}`)
-    //     valid = false
-    // }
-    // if (!serverId) {
-    //     console.log(chalk`{red ${ 'SERVER_ID' }} - {white ${ 'Please provide the server ID this bot will be on.' }}`)
-    //     valid = false
-    // }
-
-    // return valid ? { name: validActivityName ? activityName : 'a lot of invites!', type: getType(activityType) } : valid
+    return { name: validActivityName ? activityName : 'a lot of invites!', type: getType(activityType) }
 
 }

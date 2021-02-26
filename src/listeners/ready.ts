@@ -12,12 +12,9 @@ export default class ReadyListener extends Listener {
 
     public async exec() {
         const result = validate(this.client)
-
-        // if (typeof result === 'boolean')
-        //     process.exit(0)
-
-        // const { name, type } = result
-        // await this.client.user.setActivity(name, { type })
+        const { name, type } = result
+        
+        await this.client.user.setActivity(name, { type })
         console.log(`${ this.client.user.tag } is online!`)
     }
 }
