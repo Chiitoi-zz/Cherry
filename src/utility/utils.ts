@@ -159,7 +159,7 @@ export const validate = (client: AkairoClient) => {
         valid = false
     }
     
-    const validActivityName = activityName?.length <= 40
+    const validActivityName = !!activityName && activityName?.length <= 40
     const validActivityTypes = ['listening to', 'playing', 'watching']
     const validActivityType = !!activityType?.length && validActivityTypes.includes(activityType?.toLowerCase())
     

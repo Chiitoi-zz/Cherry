@@ -1,11 +1,11 @@
-export const ACTIVITY_NAME = process.env.ACTIVITY_NAME!
-export const ACTIVITY_TYPE = process.env.ACTIVITY_TYPE!
+export const ACTIVITY_NAME = process.env.ACTIVITY_NAME
+export const ACTIVITY_TYPE = process.env.ACTIVITY_TYPE
 export const BOT_CHANNEL_IDS = process.env.BOT_CHANNEL_IDS?.length ? process.env.BOT_CHANNEL_IDS.split(',') : []
 export const CATEGORY_IDS = process.env.CATEGORY_IDS?.length ? process.env.CATEGORY_IDS.split(',') : []
-export const CHECK_CHANNEL_ID = process.env.CHECK_CHANNEL_ID!
+export const CHECK_CHANNEL_ID = process.env.CHECK_CHANNEL_ID
 export const IGNORE_IDS = process.env.IGNORE_IDS?.length ? process.env.IGNORE_IDS.split(',') : []
 export const INTERVAL = (process.env.INTERVAL && Number.isInteger(+process.env.INTERVAL)) ? +process.env.INTERVAL : 5000
-export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID!
+export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID
 export const PREFIX = process.env.PREFIX ?? '~'
 export const SERVER_ID = process.env.SERVER_ID
-export const TOKEN = process.env.TOKEN!
+export const TOKEN = process.env.TOKEN
