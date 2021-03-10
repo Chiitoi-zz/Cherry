@@ -43,7 +43,7 @@ export default class CheckCommand extends Command {
 
         this.client.inCheck = true
         const check = process.hrtime()
-        checkChannel.send(MESSAGES.INFO.CHECK_START(this.client.user.username))
+        await checkChannel.send(MESSAGES.INFO.CHECK_START(this.client.user.username))
         let goodInvites = 0, badInvites = 0, totalChannels = 0, totalInvites = 0
 
         for (const [_, category] of categories) {
@@ -52,7 +52,7 @@ export default class CheckCommand extends Command {
                 .filter(({ id, type }) => ['news', 'text'].includes(type) && !ignoreIds.includes(id)) as Collection<string, NewsChannel | TextChannel>
 
             if (!childChannels.size) {
-                message.channel.send(EMBEDS.CATEGORY(categoryName))
+                await message.channel.send(EMBEDS.CATEGORY(categoryName))
                 continue
             }
 
@@ -99,14 +99,14 @@ export default class CheckCommand extends Command {
             totalChannels += channels
             totalInvites += total
 
-            checkChannel.send(EMBEDS.CATEGORY(categoryName, resultsDescription, issuesDescription))
+            await checkChannel.send(EMBEDS.CATEGORY(categoryName, resultsDescription, issuesDescription))
         }
 
         this.client.inCheck = false
         const time = process.hrtime(check)
         const elapsedTimeMilliseconds = ((time[0] * 1e9) + time[1]) / 1e6
 
-        checkChannel.send(MESSAGES.INFO.CHECK_COMPLETE)
-        checkChannel.send(EMBEDS.RESULTS(badInvites, totalChannels, goodInvites, totalInvites, elapsedTimeMilliseconds))
+        await checkChannel.send(MESSAGES.INFO.CHECK_COMPLETE)
+        await checkChannel.send(EMBEDS.RESULTS(badInvites, totalChannels, goodInvites, totalInvites, elapsedTimeMilliseconds))
     }
 }
