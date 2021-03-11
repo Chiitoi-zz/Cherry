@@ -78,17 +78,6 @@ function reject(error): [undefined, any] {
     return [undefined, error]
 }
 
-const getType = (type: string): 'LISTENING' | 'PLAYING' | 'WATCHING' => {
-    const lowered = type?.toLowerCase()
-
-    if (lowered == 'listening to')
-        return 'LISTENING'
-    else if (lowered == 'playing')
-        return 'PLAYING'
-    else
-        return 'WATCHING'
-}
-
 export const validate = (client: AkairoClient) => {
     let valid = true
     const botName = client.user.username
@@ -158,15 +147,33 @@ export const validate = (client: AkairoClient) => {
         states['PREFIX'].message = chalk`{red ${ '[PREFIX]' }} - {white ${ 'Bot prefix must not contain spaces, not contain spaces, have at least one special character, and be a maximum of three characters.' }}`
         valid = false
     }
-    
-    const validActivityName = !!activityName && activityName?.length <= 40
-    const validActivityTypes = ['listening to', 'playing', 'watching']
-    const validActivityType = !!activityType?.length && validActivityTypes.includes(activityType?.toLowerCase())
-    
-    if (!validActivityName)
-        console.log(chalk`{bold ${ '[INFO]' }} - ${ activityName?.length ? 'Provided activity name must be fewer than 40 characters. ' : '' }The default activity name will be used for the bot status.`)
-    if (!validActivityType)
-        console.log(chalk`{bold ${ '[INFO]' }} - ${ activityType?.length ? 'Provided activity type must be either "listening to", "playing", or "watching". ' : ''}The default activity type will be used for the bot status.`)
+
+    const statuses = [process.env.STATUS_1, process.env.STATUS_2, process.env.STATUS_3]
+    const validStatuses: { name: string, type: 'COMPETING' | 'LISTENING' | 'PLAYING' | 'WATCHING' }[] = []
+
+    for (const [index, status] of Object.entries(statuses)) {
+        if(!status?.length) {
+            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - Not provided.`)
+            continue
+        }
+
+        const statusCased = status.toLowerCase()
+
+        if (statusCased.startsWith('competing in')) {
+            validStatuses.push({ type: 'COMPETING', name: status.substring(12).trim() })
+            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - {green ${ 'VALID' }}.`)
+        } else if (statusCased.startsWith('listening to')) {
+            validStatuses.push({ type: 'LISTENING', name: status.substring(12).trim() })
+            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - {green ${ 'VALID' }}.`)
+        } else if (statusCased.startsWith('playing')) {
+            validStatuses.push({ type: 'PLAYING', name: status.substring(7).trim() })
+            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - {green ${ 'VALID' }}.`)
+        } else if (statusCased.startsWith('watching')) {
+            validStatuses.push({ type: 'WATCHING', name: status.substring(8).trim() })
+            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - {green ${ 'VALID' }}.`)
+        } else
+            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - This status must start with either {bold ${ 'Competing in' }}, {bold ${ 'Listening to' }}, {bold ${ 'Playing' }} or {bold ${ 'Watching' }}.`)
+    }
     if (client.guilds.cache?.size > 1)
         console.log(chalk`{bold ${ '[INFO]' }} - ${ botName } is in ${ client.guilds.cache.size } servers. Please ensure that your ${ botName } is only in the one server it's supposed to be in.`)
     
@@ -182,6 +189,5 @@ export const validate = (client: AkairoClient) => {
         process.exit(0)
     }
 
-    return { name: validActivityName ? activityName : 'a lot of invites!', type: getType(activityType) }
-
+    return validStatuses
 }
