@@ -51,11 +51,12 @@ export default class CheckCommand extends Command {
 
         for (const [_, category] of categories) {
             const categoryName = category.name
+            const guildName = category.guild.name
             const childChannels = category.children
                 .filter(({ id, type }) => ['news', 'text'].includes(type) && !ignoreIds.includes(id)) as Collection<string, NewsChannel | TextChannel>
 
             if (!childChannels.size) {
-                await message.channel.send(EMBEDS.CATEGORY(categoryName))
+                await message.channel.send(EMBEDS.CATEGORY(categoryName, guildName))
                 continue
             }
 
@@ -102,7 +103,7 @@ export default class CheckCommand extends Command {
             totalChannels += channels
             totalInvites += total
 
-            await checkChannel.send(EMBEDS.CATEGORY(categoryName, resultsDescription, issuesDescription))
+            await checkChannel.send(EMBEDS.CATEGORY(categoryName, guildName, resultsDescription, issuesDescription))
         }
 
         this.client.inCheck = false

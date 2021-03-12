@@ -31,11 +31,11 @@ export const config: CherryConfig = {
 }
 
 export const EMBEDS = {
-    CATEGORY: (categoryName: string, resultsDescription?: string, issuesDescription?: string[]) => {
+    CATEGORY: (categoryName: string, guildName: string, resultsDescription?: string, issuesDescription?: string[]) => {
         const embed: Partial<MessageEmbed> = {
             color: 16316671,
             description: resultsDescription ?? 'No channels to check in this category.',
-            footer: { text: `Checked ${ resultsDescription ? 8 : 0 } messages` },
+            footer: { text: `Checked ${ resultsDescription ? 8 : 0 } messages | ${ guildName }` },
             timestamp: Date.now(),
             title: `The "${ categoryName }" category`,
         }
