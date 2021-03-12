@@ -7,5 +7,5 @@ export const IGNORE_IDS = process.env.IGNORE_IDS?.length ? process.env.IGNORE_ID
 export const INTERVAL = (process.env.INTERVAL && Number.isInteger(+process.env.INTERVAL)) ? +process.env.INTERVAL : 5000
 export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID
 export const PREFIX = process.env.PREFIX ?? '~'
-export const SERVER_ID = process.env.SERVER_ID
+export const SERVER_IDS = process.env.SERVER_IDS?.length ? process.env.SERVER_IDS.split(',') : []
 export const TOKEN = process.env.TOKEN

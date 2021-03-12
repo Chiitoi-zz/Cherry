@@ -17,7 +17,7 @@ export const extractCodes = (messages: Collection<string, Message>) => {
 
 export const format = (x: number | string) => x.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
 
-export const formatChannels = (channelIds: string[], type: 'category' | 'text') => {
+export const formatChannels = (channelIds: string[], type: 'category' | 'server' | 'text' ) => {
     const { length } = channelIds
     const channelText = channelIds.reduce((acc, channelId, index) => {
         if (index == length - 2)
@@ -28,7 +28,7 @@ export const formatChannels = (channelIds: string[], type: 'category' | 'text') 
             acc += `${ channelId }, `
         return acc
     }, '')
-    const text = `${ channelText } ${ length <= 1 ? `is an invalid ${ type } channel ID` : `are invalid ${ type } channel IDs` }.`
+    const text = `${ channelText } ${ length <= 1 ? `is an invalid ${ type === 'server' ? 'server' : `${ type } channel` } ID` : `are invalid ${ type === 'server' ? 'server' : `${ type } channel` } IDs` }.`
 
     return text    
 }
@@ -92,8 +92,9 @@ const getType = (type: string): 'LISTENING' | 'PLAYING' | 'WATCHING' => {
 export const validate = (client: AkairoClient) => {
     let valid = true
     const botName = client.user.username
-    const { activityName, activityType, botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, serverId } = client.config
-    const guild = client.guilds.cache.get(serverId)
+    const { activityName, activityType, botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, serverIds } = client.config
+    const guildCache = client.guilds.cache
+    const invalidServerIds = serverIds.filter(serverId => !guildCache.has(serverId))
     const states = {
         'ACTIVITY_NAME': { message: '' },
         'ACTIVITY_TYPE': { message: '' },
@@ -104,24 +105,23 @@ export const validate = (client: AkairoClient) => {
         'INTERVAL': { message: '' },
         'LOG_CHANNEL_ID': { message: '' },
         'PREFIX': { message: '' },
-        'SERVER_ID': { message: '' },
+        'SERVER_IDS': { message: '' },
     }
 
-    if (!serverId) {
-        states['SERVER_ID'].message = chalk`{red ${ 'SERVER_ID' }} - {white ${ 'Please provide the server ID this bot will be on.' }}`
+    if (!serverIds.length) {
+        states['SERVER_IDS'].message = chalk`{red ${ 'SERVER_IDS' }} - {white ${ 'Please provide the server IDs this bot will be on.' }}`
         valid = false
     }
-    if (!guild) {
-        states['SERVER_ID'].message = chalk`{red ${ 'SERVER_ID' }} - {white ${ 'Please provide a valid server ID the bot is in.' }}`
+    if (invalidServerIds.length) {
+        states['SERVER_ID'].message = chalk`{red ${ 'SERVER_IDS' }} - {white ${ formatChannels(invalidServerIds, 'server') }}`
         valid = false
-    }
-    if (guild) {
-        const guildChannels = guild.channels.cache
-        const invalidBotChannelIds = [...new Set(botChannelIds)].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
-        const invalidCategoryIds = [...new Set(categoryIds)].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'category')
-        const invalidCheckChannelId = [checkChannelId].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
-        const invalidIgnoreIds = [...new Set(ignoreIds)].filter(channelId => !guildChannels.has(channelId) || !['news', 'text'].includes(guildChannels.get(channelId).type))
-        const invalidLogChannelId = [logChannelId].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
+    } else {
+        const channelCache = client.channels.cache
+        const invalidBotChannelIds = [...new Set(botChannelIds)].filter(channelId => !channelCache.has(channelId) || channelCache.get(channelId).type !== 'text')
+        const invalidCategoryIds = [...new Set(categoryIds)].filter(channelId => !channelCache.has(channelId) || channelCache.get(channelId).type !== 'category')
+        const invalidCheckChannelId = [checkChannelId].filter(channelId => !channelCache.has(channelId) || channelCache.get(channelId).type !== 'text')
+        const invalidIgnoreIds = [...new Set(ignoreIds)].filter(channelId => !channelCache.has(channelId) || !['news', 'text'].includes(channelCache.get(channelId).type))
+        const invalidLogChannelId = [logChannelId].filter(channelId => !channelCache.has(channelId) || channelCache.get(channelId).type !== 'text')
 
         if (invalidBotChannelIds.length) {
             states['BOT_CHANNEL_IDS'].message = chalk`{red ${ '[BOT_CHANNEL_IDS]' }} - {white ${ formatChannels(invalidBotChannelIds, 'text') }}`
@@ -167,8 +167,6 @@ export const validate = (client: AkairoClient) => {
         console.log(chalk`{bold ${ '[INFO]' }} - ${ activityName?.length ? 'Provided activity name must be fewer than 40 characters. ' : '' }The default activity name will be used for the bot status.`)
     if (!validActivityType)
         console.log(chalk`{bold ${ '[INFO]' }} - ${ activityType?.length ? 'Provided activity type must be either "listening to", "playing", or "watching". ' : ''}The default activity type will be used for the bot status.`)
-    if (client.guilds.cache?.size > 1)
-        console.log(chalk`{bold ${ '[INFO]' }} - ${ botName } is in ${ client.guilds.cache.size } servers. Please ensure that your ${ botName } is only in the one server it's supposed to be in.`)
     
     console.log()
 
@@ -183,5 +181,4 @@ export const validate = (client: AkairoClient) => {
     }
 
     return { name: validActivityName ? activityName : 'a lot of invites!', type: getType(activityType) }
-
 }

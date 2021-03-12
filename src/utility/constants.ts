@@ -1,4 +1,4 @@
-import { ACTIVITY_NAME, ACTIVITY_TYPE, BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, SERVER_ID, TOKEN } from '../config'
+import { ACTIVITY_NAME, ACTIVITY_TYPE, BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, SERVER_IDS, TOKEN } from '../config'
 import type { MessageEmbed, TextChannel } from 'discord.js'
 import pms from 'pretty-ms'
 
@@ -12,7 +12,7 @@ export interface CherryConfig {
     interval: number
     logChannelId: string
     prefix: string
-    serverId: string
+    serverIds: string[]
     token: string
 }
 
@@ -26,7 +26,7 @@ export const config: CherryConfig = {
     interval: INTERVAL,
     logChannelId: LOG_CHANNEL_ID,
     prefix: PREFIX,
-    serverId: SERVER_ID,
+    serverIds: SERVER_IDS,
     token: TOKEN
 }
 

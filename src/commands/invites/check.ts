@@ -1,7 +1,7 @@
 import { EMBEDS, MESSAGES } from '@constants'
 import { extractCodes, handle, processResults } from '@utils'
 import { Command } from 'discord-akairo'
-import { CategoryChannel, Collection, Message, NewsChannel, TextChannel } from 'discord.js'
+import { CategoryChannel, Collection, GuildChannel, Message, NewsChannel, TextChannel } from 'discord.js'
 
 export default class CheckCommand extends Command {
     public constructor() {
@@ -18,10 +18,14 @@ export default class CheckCommand extends Command {
     }
 
     public async exec(message: Message) {        
-        const guild = message.guild!
-        const guildChannels = guild.channels.cache
-        const { config: { categoryIds, checkChannelId, ignoreIds, interval }, inCheck } = this.client
-        const checkChannel = guildChannels.get(checkChannelId)
+        const { config: { categoryIds, checkChannelId, ignoreIds, interval, serverIds }, inCheck } = this.client
+        const guildChannelCaches: Collection<string, GuildChannel>[] = this.client.guilds.cache.reduce((acc, guild) => {
+            if (serverIds.includes(guild.id))
+                acc.push(guild.channels.cache)
+            return acc
+        }, [])
+        const channelCache = new Collection<string, GuildChannel>().concat(...guildChannelCaches)
+        const checkChannel = channelCache.get(checkChannelId)
 
         if (!(checkChannel instanceof TextChannel))
             return message.channel.send(MESSAGES.ERRORS.CHECK_CHANNEL)
@@ -32,10 +36,9 @@ export default class CheckCommand extends Command {
         if (!categoryIds.length)
             return message.channel.send(MESSAGES.INFO.NO_CATEGORIES)
 
-        const categories = guildChannels
+        const categories = channelCache
             .filter(({ id, type }) => type === 'category' && categoryIds.includes(id))
-            .sort((c1, c2) => c1.position - c2.position) as Collection<string, CategoryChannel>
-
+            .sort((c1, c2) => (c1.guild.createdTimestamp - c2.guild.createdTimestamp) || (c1.position - c2.position)) as Collection<string, CategoryChannel>
         const delay = ms => new Promise(res => setTimeout(res, ms))
         const delayTask = () => delay(interval)
         const messagesTask = (channel: NewsChannel | TextChannel) => () => handle(channel.messages.fetch({ limit: 8 }, true, false))
