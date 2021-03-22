@@ -113,7 +113,7 @@ export const validate = (client: AkairoClient) => {
         valid = false
     }
     if (invalidServerIds.length) {
-        states['SERVER_ID'].message = chalk`{red ${ 'SERVER_IDS' }} - {white ${ formatChannels(invalidServerIds, 'server') }}`
+        states['SERVER_IDS'].message = chalk`{red ${ 'SERVER_IDS' }} - {white ${ formatChannels(invalidServerIds, 'server') }}`
         valid = false
     } else {
         const channelCache = client.channels.cache
