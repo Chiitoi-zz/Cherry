@@ -1,12 +1,45 @@
+import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, DEBUG, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, SERVER_ID, TOKEN } from '../config'
 import type { MessageEmbed, TextChannel } from 'discord.js'
 import pms from 'pretty-ms'
 
 export interface CherryConfig {
-
+    botChannelIds: string[]
+    categoryIds: string[]
+    checkChannelId: string | null
+    debug: boolean
+    ignoreIds: string[]
+    interval: number | null
+    logChannelId: string | null
+    prefix: string
+    serverId: string | null
+    token: string | null
 }
 
-export const config: CherryConfig = {
+console.log({
+    botChannelIds: BOT_CHANNEL_IDS,
+    categoryIds: CATEGORY_IDS,
+    checkChannelId: CHECK_CHANNEL_ID,
+    debug: DEBUG,
+    ignoreIds: IGNORE_IDS,
+    interval: INTERVAL,
+    logChannelId: LOG_CHANNEL_ID,
+    prefix: PREFIX,
+    serverId: SERVER_ID,
+    token: TOKEN
+ })
 
+
+export const config: CherryConfig = {
+    botChannelIds: BOT_CHANNEL_IDS,
+    categoryIds: CATEGORY_IDS,
+    checkChannelId: CHECK_CHANNEL_ID,
+    debug: DEBUG,
+    ignoreIds: IGNORE_IDS,
+    interval: INTERVAL,
+    logChannelId: LOG_CHANNEL_ID,
+    prefix: PREFIX,
+    serverId: SERVER_ID,
+    token: TOKEN
 }
 
 export const EMBEDS = {
@@ -62,7 +95,6 @@ export const EMBEDS = {
 }
 
 export const InviteLinkRegex = /(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.com\/invite|\.gg)\/(?<code>[a-z0-9-]+)/gi
-///^(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.com\/invite|\.gg)\/(?<code>[\w\d-]{2,})$/gi
 
 // [] = Optional
 // <> = Required
