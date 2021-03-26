@@ -1,7 +1,7 @@
 import { InviteLinkRegex } from '@constants'
 import chalk from 'chalk'
+import type { AkairoClient } from 'discord-akairo'
 import { Collection, Message, NewsChannel, TextChannel } from 'discord.js'
-import { AkairoClient } from 'discord-akairo'
 
 export const extractCodes = (messages: Collection<string, Message>) => {
     const matches = messages.reduce((acc, message) => {
@@ -76,4 +76,59 @@ function resolve<T>(data: T): [T, undefined] {
 
 function reject(error): [undefined, any] {
     return [undefined, error]
+}
+
+export const validate = (client: AkairoClient) => {
+    const { config, config: { botChannelIds, categoryIds, checkChannelId, debug, ignoreIds, interval, logChannelId, serverId }, guilds: { cache: guildCache } } = client
+    const botName = client.user.username
+    const states = {}
+
+    if (debug) {
+        console.log(chalk`{bold.underline ${ 'Provided config' }}`)
+        console.log(config, '\n')
+    }
+
+    if (!guildCache?.size)
+        states['SERVERS'] = chalk`{white ${ `[SERVERS] - ${ botName } is not in any server.` }}`
+    if (guildCache?.size !== 1)
+        states['SERVERS'] = chalk`{white ${ `[SERVERS] - ${ botName } is in more than one server.` }}`
+    if (!serverId)
+        states['SERVER_ID'] = chalk`{red ${ '[SERVER_ID]' }} - {white ${ 'Not provided in .env file.' }}`
+
+    const guild = guildCache.get(config.serverId)
+
+    if (!guild)
+        states['SERVERS'] = chalk`{white ${ `[SERVERS] - ${ botName } is not in the server with ID ${ config.serverId }.` }}`
+    else {
+        const channelCache = guild.channels.cache
+        const data = [
+            { items: botChannelIds, invalidItems: [...new Set(botChannelIds)].filter(channelId => channelCache.get(channelId)?.type !== 'text'), setting: 'BOT_CHANNEL_IDS' },
+            { items: categoryIds, invalidItems: [...new Set(categoryIds)].filter(channelId => channelCache.get(channelId)?.type !== 'category'), setting: 'CATEGORY_IDS' },
+            { items: checkChannelId, invalid: checkChannelId && channelCache.get(checkChannelId)?.type !== 'text', setting: 'CHECK_CHANNEL_ID' },
+            { items: ignoreIds, invalidItems: [...new Set(ignoreIds)].filter(channelId => channelCache.get(channelId)?.type !== 'text'), setting: 'IGNORE_IDS' },
+            { items: logChannelId, invalid: logChannelId && channelCache.get(logChannelId)?.type !== 'text', setting: 'LOG_CHANNEL_ID' }
+        ]
+
+        for (const { items, invalid, invalidItems, setting } of data) {
+            const colour = ['CATEGORY_IDS', 'CHECK_CHANNEL_ID'].includes(setting) ? 'red' : 'yellow'
+            if (!items?.length)
+                states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ 'Not provided in .env file.' }}`
+            if (['CHECK_CHANNEL_ID', 'LOG_CHANNEL_ID'].includes(setting) && invalid)
+                states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ formatChannels([items as string], 'text') }}`
+            if (['BOT_CHANNEL_IDS', 'CATEGORY_IDS', 'IGNORE_IDS'].includes(setting) && invalidItems.length)
+                states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ formatChannels(invalidItems, setting === 'CATEGORY_IDS' ? 'category' : 'text') }}`
+        }
+    }
+
+    const messages = Object.values(states)
+
+    if (messages.length) {
+        console.log(chalk`{bold.underline ${ `Just a heads-up, ${ botName } has the following issue(s):` }}`)
+
+        for (const message of messages)
+            console.log(message)
+
+        console.log()
+        console.log(chalk`{bold.white ${ 'NOTE: '}}{red ${ 'Red issues' }} must be fixed in order for ${ botName } to work, {yellow ${ 'yellow issues' }} may be ignored.`)
+    }
 }

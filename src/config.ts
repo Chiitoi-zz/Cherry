@@ -3,7 +3,7 @@ export const CATEGORY_IDS = process.env.CATEGORY_IDS?.length ? process.env.CATEG
 export const CHECK_CHANNEL_ID = process.env.CHECK_CHANNEL_ID?.length ? process.env.CHECK_CHANNEL_ID : null
 export const DEBUG = (process.env.DEBUG === 'true')
 export const IGNORE_IDS = process.env.IGNORE_IDS?.length ? process.env.IGNORE_IDS.split(',') : []
-export const INTERVAL = (process.env.INTERVAL?.length && Number.isInteger(+process.env.INTERVAL)) ? +process.env.INTERVAL : null
+export const INTERVAL = (process.env.INTERVAL?.length && Number.isInteger(+process.env.INTERVAL)) ? +process.env.INTERVAL : 5000
 export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID?.length ? process.env.LOG_CHANNEL_ID : null
 export const PREFIX = process.env.PREFIX?.length ? process.env.PREFIX : '~'
 export const SERVER_ID = process.env.SERVER_ID?.length ? process.env.SERVER_ID : null

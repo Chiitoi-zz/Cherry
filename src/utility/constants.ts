@@ -8,26 +8,12 @@ export interface CherryConfig {
     checkChannelId: string | null
     debug: boolean
     ignoreIds: string[]
-    interval: number | null
+    interval: number
     logChannelId: string | null
     prefix: string
     serverId: string | null
     token: string | null
 }
-
-console.log({
-    botChannelIds: BOT_CHANNEL_IDS,
-    categoryIds: CATEGORY_IDS,
-    checkChannelId: CHECK_CHANNEL_ID,
-    debug: DEBUG,
-    ignoreIds: IGNORE_IDS,
-    interval: INTERVAL,
-    logChannelId: LOG_CHANNEL_ID,
-    prefix: PREFIX,
-    serverId: SERVER_ID,
-    token: TOKEN
- })
-
 
 export const config: CherryConfig = {
     botChannelIds: BOT_CHANNEL_IDS,
@@ -150,8 +136,5 @@ export const MESSAGES = {
     ERRORS: {
         CHECK_CHANNEL: EMBEDS.ERROR('Please provide a valid **text** channel ID in your `.env` file.'),
 
-    },
-    STATES: {
-        
     }
 }
