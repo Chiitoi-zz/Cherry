@@ -1,6 +1,7 @@
 import { MESSAGES } from '@constants'
+import { formatInterval } from '@utils'
 import { Command } from 'discord-akairo'
-import type { GuildChannel, Message, MessageEmbed } from 'discord.js'
+import type { Message, MessageEmbed } from 'discord.js'
 import pms from 'pretty-ms'
 
 export default class SettingsCommand extends Command {
@@ -19,7 +20,7 @@ export default class SettingsCommand extends Command {
 
     public async exec(message: Message) {
         const botName = this.client.user.username
-        const { botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, serverIds } = this.client.config
+        const { botChannelIds, categoryIds, checkChannelId, ignoreIds, logChannelId, prefix, serverIds } = this.client.config
         const channelCache = this.client.channels.cache
         const checkChannel = channelCache.get(checkChannelId)
         const logChannel = channelCache.get(logChannelId)
@@ -28,7 +29,7 @@ export default class SettingsCommand extends Command {
             color: 16316671,
             description: [
                 `**Bot prefix:** \`${ prefix }\``,
-                `**Interval:** 1 request every ${ pms(interval) }`,
+                `**Interval:** 1 request every ${ pms(formatInterval()) }`,
                 `**Invite check channel:** ${ checkChannel ?? 'No channel set.' }`,
                 `**Log channel:** ${ logChannel ?? 'No channel set.' }`
             ].join('\n'),
