@@ -1,8 +1,10 @@
-import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo'
 import { config, CherryConfig } from '@constants'
+import { formatInterval } from '@utils'
+import chalk from 'chalk'
+import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo'
 import { Intents } from 'discord.js'
-import PQueue from 'p-queue'
 import { join } from 'path'
+import PQueue from 'p-queue'
 
 declare module 'discord-akairo' {
     interface AkairoClient {
@@ -30,7 +32,7 @@ export default class CherryClient extends AkairoClient {
     public queue = new PQueue({
         autoStart: true,
         concurrency: 1,
-        interval: config.interval,
+        interval: formatInterval(),
         intervalCap: 1
     })
     public constructor() {
@@ -67,6 +69,11 @@ export default class CherryClient extends AkairoClient {
         this.commandHandler.loadAll()
         this.inhibitorHandler.loadAll()
         this.listenerHandler.loadAll()
+
+        if (this.config?.debug) {
+            console.log(chalk`{bold.underline ${ 'Provided config' }}`)
+            console.log(this.config, '\n')
+        }
     }
 
     public async start() {
