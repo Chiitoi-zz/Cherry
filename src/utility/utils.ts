@@ -131,7 +131,7 @@ export const validate = async (client: AkairoClient) => {
     const states = {}
 
     for (const [setting, { items, invalid, invalidItems }] of Object.entries(settings)) {
-        const colour = ['CATEGORY_IDS', 'CHECK_CHANNEL_ID'].includes(setting) ? 'red' : 'yellow'
+        const colour = ['CATEGORY_IDS', 'CHECK_CHANNEL_ID', 'SERVER_ID'].includes(setting) ? 'red' : 'yellow'
 
         if (!items?.length)
             states[`${ setting }`] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ `Not provided in .env file.${ setting === 'INTERVAL' ? ' 5000 will be used here as a default.' : '' }` }}`
@@ -160,6 +160,6 @@ export const validate = async (client: AkairoClient) => {
             console.log(message)
 
         console.log()
-        console.log(chalk`{bold.white ${ 'NOTE: '}}{red ${ 'Red issues' }} must be fixed in order for ${ botName } to work properly, {yellow ${ 'yellow issues' }} may be ignored.`)
+        console.log(chalk`{bold.white ${ 'NOTE: '}}{red ${ 'Red issues' }} must be fixed in order for ${ botName } to work properly, {yellow ${ 'orange/yellow issues' }} may be ignored.`)
     }
 }
