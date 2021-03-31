@@ -1,4 +1,5 @@
 import { MESSAGES } from '@constants'
+import { formatInterval } from '@utils'
 import { Command } from 'discord-akairo'
 import type { Message, MessageEmbed } from 'discord.js'
 import pms from 'pretty-ms'
@@ -45,7 +46,7 @@ export default class SettingsCommand extends Command {
                 { inline: false, name: 'Ignore list', value: ignore.length ? ignore : 'No ignored channels.' },
                 { inline: false, name: 'Bot channel list', value: bots.length ? bots : 'No added bot channels.' },
                 { inline: false, name: 'Log channel', value: logChannel ?? 'No channel set.' },
-                { inline: false, name: 'Interval', value: `1 request every ${ pms(interval) }`}
+                { inline: false, name: 'Interval', value: `1 request every ${ pms(formatInterval()) }`}
             ],
             title: `${ botName }${ botName.toLowerCase().endsWith('s') ? '\'' : '\'s' } settings for "${ guild.name }"`
         }

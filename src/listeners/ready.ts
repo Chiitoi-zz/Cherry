@@ -1,7 +1,6 @@
-import { validate } from '@utils'
+import { formatStatuses, validate } from '@utils'
 import { Listener } from 'discord-akairo'
 import { Constants } from 'discord.js'
-import { stat } from 'node:fs'
 
 export default class ReadyListener extends Listener {
     public constructor() {
@@ -12,7 +11,9 @@ export default class ReadyListener extends Listener {
     }
 
     public async exec() {
-        const statuses = validate(this.client)
+        await validate(this.client)
+
+        const statuses = formatStatuses()
         
         if (statuses.length == 1)
             this.client.user.setActivity(statuses[0].name, { type: statuses[0].type })
@@ -29,6 +30,6 @@ export default class ReadyListener extends Listener {
             }, 600000)
         }
         
-        console.log(`${ this.client.user.tag } is online!`)
+        console.log(`\n${ this.client.user.tag } is online!`)
     }
 }

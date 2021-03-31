@@ -1,7 +1,9 @@
-import { InviteLinkRegex } from '@constants'
+import { InviteLinkRegex, Settings, config } from '@constants'
 import chalk from 'chalk'
-import { Collection, Message, NewsChannel, TextChannel } from 'discord.js'
-import { AkairoClient } from 'discord-akairo'
+import type { AkairoClient } from 'discord-akairo'
+import { Collection, GuildChannel, Message, NewsChannel, TextChannel } from 'discord.js'
+
+const delay = ms => new Promise(res => setTimeout(res, ms))
 
 export const extractCodes = (messages: Collection<string, Message>) => {
     const matches = messages.reduce((acc, message) => {
@@ -31,6 +33,39 @@ export const formatChannels = (channelIds: string[], type: 'category' | 'text') 
     const text = `${ channelText } ${ length <= 1 ? `is an invalid ${ type } channel ID` : `are invalid ${ type } channel IDs` }.`
 
     return text    
+}
+
+export const formatInterval = () => {
+    const interval = +config.interval
+
+    if (interval && Number.isInteger(interval) && (interval >= 1000) && (interval <= 5000))
+        return interval
+    return 5000
+}
+
+export const formatStatuses = () => {
+    const { status1, status2, status3 } = config
+    const statuses = [status1, status2, status3].filter(status => typeof status === 'string')
+
+    if (!statuses.length)
+        return []
+    
+    const validStatuses: { name: string, type: 'COMPETING' | 'LISTENING' | 'PLAYING' | 'WATCHING' }[] = []
+
+    for (const status of statuses) {
+        const statusCased = status.toLowerCase()
+
+        if (statusCased.startsWith('competing in'))
+            validStatuses.push({ type: 'COMPETING', name: status.substring(12).trim() })
+        if (statusCased.startsWith('listening to'))
+            validStatuses.push({ type: 'LISTENING', name: status.substring(12).trim() })
+        if (statusCased.startsWith('playing'))
+            validStatuses.push({ type: 'PLAYING', name: status.substring(7).trim() })
+        if (statusCased.startsWith('watching'))
+            validStatuses.push({ type: 'WATCHING', name: status.substring(8).trim() })
+    }
+
+    return validStatuses
 }
 
 export async function handle<T>(promise: Promise<T>) {
@@ -78,116 +113,59 @@ function reject(error): [undefined, any] {
     return [undefined, error]
 }
 
-export const validate = (client: AkairoClient) => {
-    let valid = true
+export const validate = async (client: AkairoClient) => {
+    await delay(7000)
+
+    const { botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, serverId, status1, status2, status3 } = client.config
     const botName = client.user.username
-    const { activityName, activityType, botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, serverId } = client.config
-    const guild = client.guilds.cache.get(serverId)
-    const states = {
-        'ACTIVITY_NAME': { message: '' },
-        'ACTIVITY_TYPE': { message: '' },
-        'BOT_CHANNEL_IDS': { message: '' },
-        'CATEGORY_IDS': { message: '' },
-        'CHECK_CHANNEL_ID': { message: '' },
-        'IGNORE_IDS': { message: '' },
-        'INTERVAL': { message: '' },
-        'LOG_CHANNEL_ID': { message: '' },
-        'PREFIX': { message: '' },
-        'SERVER_ID': { message: '' },
+    const guildCache = client.guilds.cache
+    const guildChannelCaches: Collection<string, GuildChannel>[] = guildCache.map(guild => guild.channels.cache)
+    const channelCache = new Collection<string, GuildChannel>().concat(...guildChannelCaches)
+    const settings: Settings = {
+        'BOT_CHANNEL_IDS': { items: botChannelIds, invalidItems: [...new Set(botChannelIds)].filter(channelId => channelCache.get(channelId)?.type !== 'text') },
+        'CATEGORY_IDS': { items: categoryIds, invalidItems: [...new Set(categoryIds)].filter(channelId => channelCache.get(channelId)?.type !== 'category') },
+        'CHECK_CHANNEL_ID': { items: checkChannelId, invalid: checkChannelId && channelCache.get(checkChannelId)?.type !== 'text' },
+        'IGNORE_IDS': { items: ignoreIds, invalidItems: [...new Set(ignoreIds)].filter(channelId => channelCache.get(channelId)?.type !== 'text') },
+        'INTERVAL': { items: interval, invalid: +interval && (!Number.isInteger(+interval) || (+interval < 1000) || (+interval > 5000)) },
+        'LOG_CHANNEL_ID': { items: logChannelId, invalid: logChannelId && channelCache.get(logChannelId)?.type !== 'text' },
+        'PREFIX': { items: prefix, invalid: prefix && (/^[0-9]/.test(prefix) || !/[~`!@#\$%\^&*()-_\+={}\[\]|\\\/:;"'<>,.?]/g.test(prefix) || /\s/.test(prefix) || (prefix.length > 3)) },
+        'SERVER_ID': { items: serverId, invalid: serverId && !guildCache.has(serverId) },
+        'STATUS_1': { items: status1, invalid: status1 && !['competing in', 'listening to', 'playing', 'watching'].some(start => status1.toLowerCase().startsWith(start)) },
+        'STATUS_2': { items: status2, invalid: status2 && !['competing in', 'listening to', 'playing', 'watching'].some(start => status2.toLowerCase().startsWith(start)) },
+        'STATUS_3': { items: status3, invalid: status3 && !['competing in', 'listening to', 'playing', 'watching'].some(start => status3.toLowerCase().startsWith(start)) }
     }
+    const states = {}
 
-    if (!serverId) {
-        states['SERVER_ID'].message = chalk`{red ${ 'SERVER_ID' }} - {white ${ 'Please provide the server ID this bot will be on.' }}`
-        valid = false
-    }
-    if (!guild) {
-        states['SERVER_ID'].message = chalk`{red ${ 'SERVER_ID' }} - {white ${ 'Please provide a valid server ID the bot is in.' }}`
-        valid = false
-    }
-    if (guild) {
-        const guildChannels = guild.channels.cache
-        const invalidBotChannelIds = [...new Set(botChannelIds)].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
-        const invalidCategoryIds = [...new Set(categoryIds)].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'category')
-        const invalidCheckChannelId = [checkChannelId].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
-        const invalidIgnoreIds = [...new Set(ignoreIds)].filter(channelId => !guildChannels.has(channelId) || !['news', 'text'].includes(guildChannels.get(channelId).type))
-        const invalidLogChannelId = [logChannelId].filter(channelId => !guildChannels.has(channelId) || guildChannels.get(channelId).type !== 'text')
+    for (const [setting, { items, invalid, invalidItems }] of Object.entries(settings)) {
+        const colour = ['CATEGORY_IDS', 'CHECK_CHANNEL_ID', 'SERVER_ID'].includes(setting) ? 'red' : 'yellow'
 
-        if (invalidBotChannelIds.length) {
-            states['BOT_CHANNEL_IDS'].message = chalk`{red ${ '[BOT_CHANNEL_IDS]' }} - {white ${ formatChannels(invalidBotChannelIds, 'text') }}`
-            valid = false
+        if (!items?.length)
+            states[`${ setting }`] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ `Not provided in .env file.${ setting === 'INTERVAL' ? ' 5000 will be used here as a default.' : '' }` }}`
+        if (['BOT_CHANNEL_IDS', 'CATEGORY_IDS', 'IGNORE_IDS'].includes(setting) && invalidItems.length)
+            states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ formatChannels(invalidItems, setting === 'CATEGORY_IDS' ? 'category' : 'text') }}`
+        if (['CHECK_CHANNEL_ID', 'LOG_CHANNEL_ID'].includes(setting) && invalid)
+            states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ formatChannels([items as string], 'text') }}`
+        if ((setting === 'INTERVAL') && (invalid || Number.isNaN(invalid)))
+            states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - Must be a positive integer between 1000 and 5000. 5000 will be used here as a default.`
+        if ((setting === 'PREFIX') && invalid)
+            states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - Must not contain digits, have at least one special character, not contain spaces, and be a maximum of three characters.`
+        if ((setting === 'SERVER_ID') && invalid) {
+            const message = !guildCache?.size ? `${ botName } is not in any server.` : `${ botName } is not in the server with ID ${ serverId }.`
+            states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ message }}`
         }
-        if (invalidCategoryIds.length) {
-            states['CATEGORY_IDS'].message = chalk`{red ${ '[CATEGORY_IDS]' }} - {white ${ formatChannels(invalidCategoryIds, 'category') }}`
-            valid = false
-        }
-        if (invalidCheckChannelId.length) {
-            states['CHECK_CHANNEL_ID'].message = chalk`{red ${ '[CHECK_CHANNEL_ID]' }} - {white ${ formatChannels(invalidCheckChannelId, 'text') }}`
-            valid = false
-        }
-        if (invalidIgnoreIds.length) {
-            states['IGNORE_IDS'].message = chalk`{red ${ '[IGNORE_IDS]' }} - {white ${ formatChannels(invalidIgnoreIds, 'text') }}`
-            valid = false
-        }
-        if (invalidLogChannelId.length) {
-            states['LOG_CHANNEL_ID'].message = chalk`{red ${ '[LOG_CHANNEL_ID]' }} - {white ${ formatChannels(invalidLogChannelId, 'text') }}`
-            valid = false
-        }
-    }
-    if ((interval < 1000) || (interval > 5000)) {
-        states['INTERVAL'].message = chalk`{red ${ '[INTERVAL]' }} - {white ${ 'Please use a positive integer between 1000 - 5000.' }}`
-        valid = false
+        if (['STATUS_1', 'STATUS_2', 'STATUS_3'].includes(setting) && invalid)
+            states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - Must start with either {bold ${ 'Competing in' }}, {bold ${ 'Listening to' }}, {bold ${ 'Playing' }} or {bold ${ 'Watching' }}.`
     }
 
-    const reDigit = /^[0-9]/
-    const reSpecial = /[~`!@#\$%\^&*()-_\+={}\[\]|\\\/:;"'<>,.?]/g
-    const reSpaces = /\s/
-    const validPrefix = !reDigit.test(prefix) && reSpecial.test(prefix) && !reSpaces.test(prefix) && (prefix.length <= 3)
+    const messages = Object.values(states)
 
-    if (!validPrefix) {
-        states['PREFIX'].message = chalk`{red ${ '[PREFIX]' }} - {white ${ 'Bot prefix must not contain spaces, not contain spaces, have at least one special character, and be a maximum of three characters.' }}`
-        valid = false
+    if (messages.length) {
+        console.log(chalk`{bold.underline ${ `Just a heads-up, ${ botName } has the following issue(s):` }}`)
+
+        for (const message of messages)
+            console.log(message)
+
+        console.log()
+        console.log(chalk`{bold.white ${ 'NOTE: '}}{red ${ 'Red issues' }} must be fixed in order for ${ botName } to work properly, {yellow ${ 'orange/yellow issues' }} may be ignored.`)
     }
-
-    const statuses = [process.env.STATUS_1, process.env.STATUS_2, process.env.STATUS_3]
-    const validStatuses: { name: string, type: 'COMPETING' | 'LISTENING' | 'PLAYING' | 'WATCHING' }[] = []
-
-    for (const [index, status] of Object.entries(statuses)) {
-        if(!status?.length) {
-            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - Not provided.`)
-            continue
-        }
-
-        const statusCased = status.toLowerCase()
-
-        if (statusCased.startsWith('competing in')) {
-            validStatuses.push({ type: 'COMPETING', name: status.substring(12).trim() })
-            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - {green ${ 'VALID' }}.`)
-        } else if (statusCased.startsWith('listening to')) {
-            validStatuses.push({ type: 'LISTENING', name: status.substring(12).trim() })
-            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - {green ${ 'VALID' }}.`)
-        } else if (statusCased.startsWith('playing')) {
-            validStatuses.push({ type: 'PLAYING', name: status.substring(7).trim() })
-            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - {green ${ 'VALID' }}.`)
-        } else if (statusCased.startsWith('watching')) {
-            validStatuses.push({ type: 'WATCHING', name: status.substring(8).trim() })
-            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - {green ${ 'VALID' }}.`)
-        } else
-            console.log(chalk`{bold ${ `[STATUS_${ +index + 1}]` }} - This status must start with either {bold ${ 'Competing in' }}, {bold ${ 'Listening to' }}, {bold ${ 'Playing' }} or {bold ${ 'Watching' }}.`)
-    }
-    if (client.guilds.cache?.size > 1)
-        console.log(chalk`{bold ${ '[INFO]' }} - ${ botName } is in ${ client.guilds.cache.size } servers. Please ensure that your ${ botName } is only in the one server it's supposed to be in.`)
-    
-    console.log()
-
-    if (!valid) {
-        console.log(chalk`{bold.underline ${ `Please fix the following errors and restart ${ botName }:` }}`)
-        for (const { message } of Object.values(states)) {
-            if (message.length)
-                console.log(message)
-        }
-
-        process.exit(0)
-    }
-
-    return validStatuses
 }

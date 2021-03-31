@@ -1,32 +1,36 @@
-import { ACTIVITY_NAME, ACTIVITY_TYPE, BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, SERVER_ID, TOKEN } from '../config'
+import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, DEBUG, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, SERVER_ID, STATUS_1, STATUS_2, STATUS_3, TOKEN } from '../config'
 import type { MessageEmbed, TextChannel } from 'discord.js'
 import pms from 'pretty-ms'
 
 export interface CherryConfig {
-    activityName: string
-    activityType: string
     botChannelIds: string[]
     categoryIds: string[]
-    checkChannelId: string
+    checkChannelId: string | null
+    debug: boolean
     ignoreIds: string[]
-    interval: number
-    logChannelId: string
-    prefix: string
-    serverId: string
-    token: string
+    interval: string
+    logChannelId: string | null
+    prefix: string | null
+    serverId: string | null
+    status1: string | null
+    status2: string | null
+    status3: string | null
+    token: string | null
 }
 
 export const config: CherryConfig = {
-    activityName: ACTIVITY_NAME,
-    activityType: ACTIVITY_TYPE,
     botChannelIds: BOT_CHANNEL_IDS,
     categoryIds: CATEGORY_IDS,
     checkChannelId: CHECK_CHANNEL_ID,
+    debug: DEBUG,
     ignoreIds: IGNORE_IDS,
     interval: INTERVAL,
     logChannelId: LOG_CHANNEL_ID,
     prefix: PREFIX,
     serverId: SERVER_ID,
+    status1: STATUS_1,
+    status2: STATUS_2,
+    status3: STATUS_3,
     token: TOKEN
 }
 
@@ -83,7 +87,6 @@ export const EMBEDS = {
 }
 
 export const InviteLinkRegex = /(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.com\/invite|\.gg)\/(?<code>[a-z0-9-]+)/gi
-///^(?:https?:\/\/)?(?:\w+\.)?discord(?:(?:app)?\.com\/invite|\.gg)\/(?<code>[\w\d-]{2,})$/gi
 
 // [] = Optional
 // <> = Required
@@ -137,10 +140,20 @@ export const MESSAGES = {
         WRONG_CHANNEL: (channel: TextChannel) => EMBEDS.INFO(`This command can only be run in ${ channel }.`)
     },
     ERRORS: {
-        CHECK_CHANNEL: EMBEDS.ERROR('Please provide a valid **text** channel ID in your `.env` file.'),
-
-    },
-    STATES: {
-        
+        CHECK_CHANNEL: EMBEDS.ERROR('Please provide a valid **text** channel ID in your `.env` file.')
     }
+}
+
+export interface Settings {
+    BOT_CHANNEL_IDS: { items: string[], invalidItems: string[] }
+    CATEGORY_IDS: { items: string[], invalidItems: string[] }
+    CHECK_CHANNEL_ID: { items: string, invalid: boolean }
+    IGNORE_IDS: { items: string[], invalidItems: string[] }
+    INTERVAL: { items: string, invalid: boolean }
+    LOG_CHANNEL_ID: { items: string, invalid: boolean }
+    PREFIX: { items: string, invalid: boolean }
+    SERVER_ID: { items: string, invalid: boolean }
+    STATUS_1: { items: string, invalid: boolean }
+    STATUS_2: { items: string, invalid: boolean }
+    STATUS_3: { items: string, invalid: boolean }
 }
