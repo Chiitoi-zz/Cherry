@@ -10,7 +10,7 @@ export interface CherryConfig {
     ignoreIds: string[]
     interval: string
     logChannelId: string | null
-    prefix: string
+    prefix: string | null
     serverId: string | null
     status: string | null
     token: string | null
