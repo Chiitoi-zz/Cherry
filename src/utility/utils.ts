@@ -112,7 +112,10 @@ function reject(error): [undefined, any] {
 export const validate = async (client: AkairoClient) => {
     const { botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, presenceStatus, serverId, status } = client.config
     
-    await client.guilds.fetch(serverId, true, true)
+    try {
+        await client.guilds.fetch(serverId, true, true)
+    } catch (error) {}
+
     await delay(7000)
     
     const botName = client.user.username
