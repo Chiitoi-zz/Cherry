@@ -1,4 +1,4 @@
-import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, DEBUG, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, SERVER_ID, STATUS, TOKEN } from '../config'
+import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, DEBUG, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, PRESENCE_STATUS,SERVER_ID, STATUS, TOKEN } from '../config'
 import type { MessageEmbed, TextChannel } from 'discord.js'
 import pms from 'pretty-ms'
 
@@ -11,6 +11,7 @@ export interface CherryConfig {
     interval: string
     logChannelId: string | null
     prefix: string | null
+    presenceStatus: 'dnd' | 'idle' | 'invisible' | 'online'
     serverId: string | null
     status: string | null
     token: string | null
@@ -25,6 +26,7 @@ export const config: CherryConfig = {
     interval: INTERVAL,
     logChannelId: LOG_CHANNEL_ID,
     prefix: PREFIX,
+    presenceStatus: PRESENCE_STATUS,
     serverId: SERVER_ID,
     status: STATUS,
     token: TOKEN
@@ -92,6 +94,10 @@ export const MESSAGES = {
             TEXT: 'Runs an invite check on provided categories.',
             USAGE: 'check'
         },
+        COUNTS: {
+            DESCRIPTION: 'Displays channel counts (by type) for added categories.',
+            USAGE: 'counts'
+        },
         GUIDE: {
             TEXT: 'A guide to the bot.',
             USAGE: 'guide'
@@ -148,6 +154,7 @@ export interface Settings {
     INTERVAL: { items: string, invalid: boolean }
     LOG_CHANNEL_ID: { items: string, invalid: boolean }
     PREFIX: { items: string, invalid: boolean }
+    PRESENCE_STATUS: { items: string, invalid: boolean }
     SERVER_ID: { items: string, invalid: boolean }
     STATUS: { items: string, invalid: boolean }
 }

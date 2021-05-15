@@ -110,9 +110,11 @@ function reject(error): [undefined, any] {
 }
 
 export const validate = async (client: AkairoClient) => {
+    const { botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, presenceStatus, serverId, status } = client.config
+    
+    await client.guilds.fetch(serverId, true, true)
     await delay(7000)
-
-    const { botChannelIds, categoryIds, checkChannelId, ignoreIds, interval, logChannelId, prefix, serverId, status } = client.config
+    
     const botName = client.user.username
     const guildCache = client.guilds.cache
     const guildChannelCaches: Collection<string, GuildChannel>[] = guildCache.map(guild => guild.channels.cache)
@@ -125,6 +127,7 @@ export const validate = async (client: AkairoClient) => {
         'INTERVAL': { items: interval, invalid: +interval && (!Number.isInteger(+interval) || (+interval < 1000) || (+interval > 5000)) },
         'LOG_CHANNEL_ID': { items: logChannelId, invalid: logChannelId && channelCache.get(logChannelId)?.type !== 'text' },
         'PREFIX': { items: prefix, invalid: prefix && (/^[0-9]/.test(prefix) || !/[~`!@#\$%\^&*()-_\+={}\[\]|\\\/:;"'<>,.?]/g.test(prefix) || /\s/.test(prefix) || (prefix.length > 3)) },
+        'PRESENCE_STATUS': { items: presenceStatus, invalid: presenceStatus && !['dnd', 'idle', 'invisible', 'online'].includes(presenceStatus) },
         'SERVER_ID': { items: serverId, invalid: serverId && !guildCache.has(serverId) },
         'STATUS': { items: status, invalid: status && !['competing in', 'listening to', 'playing', 'watching'].some(start => status.toLowerCase().startsWith(start)) }
     }
@@ -143,6 +146,8 @@ export const validate = async (client: AkairoClient) => {
             states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - Must be a positive integer between 1000 and 5000. 5000 will be used here as a default.`
         if ((setting === 'PREFIX') && invalid)
             states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - Must not contain digits, have at least one special character, not contain spaces, and be a maximum of three characters.`
+        if ((setting === 'PRESENCE_STATUS') && invalid)
+            states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - Must be either {bold ${ 'dnd' }}, {bold ${ 'idle' }}, {bold ${ 'invisible' }} or {bold ${ 'online' }}. The presence for ${ botName} has been set to {bold ${ 'online' }}.`
         if ((setting === 'SERVER_ID') && invalid) {
             const message = !guildCache?.size ? `${ botName } is not in any server.` : `${ botName } is not in the server with ID ${ serverId }.`
             states[setting] = chalk`{${ colour } ${ `[${ setting }]` }} - {white ${ message }}`
