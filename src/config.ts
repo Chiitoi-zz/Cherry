@@ -6,6 +6,7 @@ export const IGNORE_IDS = process.env.IGNORE_IDS?.length ? process.env.IGNORE_ID
 export const INTERVAL = process.env.INTERVAL?.length ? process.env.INTERVAL : null
 export const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID?.length ? process.env.LOG_CHANNEL_ID : null
 export const PREFIX = process.env.PREFIX?.length ? process.env.PREFIX : null
+export const PRESENCE_STATUS = (process.env.PRESENCE_STATUS?.length && ['dnd', 'idle', 'invisible', 'online'].includes(process.env.PRESENCE_STATUS) ? process.env.PRESENCE_STATUS : 'online') as 'dnd' | 'idle' | 'invisible' | 'online'
 export const SERVER_IDS = process.env.SERVER_IDS?.length ? process.env.SERVER_IDS.split(',') : []
 export const STATUS = process.env.STATUS?.length ? process.env.STATUS : null
 export const TOKEN = process.env.TOKEN?.length ? process.env.TOKEN : null
