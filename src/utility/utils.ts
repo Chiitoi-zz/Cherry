@@ -136,7 +136,7 @@ export const validate = async (client: AkairoClient) => {
         'INTERVAL': { items: interval, invalid: +interval && (!Number.isInteger(+interval) || (+interval < 1000) || (+interval > 5000)) },
         'LOG_CHANNEL_ID': { items: logChannelId, invalid: logChannelId && channelCache.get(logChannelId)?.type !== 'text' },
         'PREFIX': { items: prefix, invalid: prefix && (/^[0-9]/.test(prefix) || !/[~`!@#\$%\^&*()-_\+={}\[\]|\\\/:;"'<>,.?]/g.test(prefix) || /\s/.test(prefix) || (prefix.length > 3)) },
-        'PRESENCE_STATUS': { items: presenceStatus, invalid: presenceStatus && !['dnd', 'idle', 'invisible', 'online'].includes(process.env.PRESENCE_STATUS || '') },
+        'PRESENCE_STATUS': { items: presenceStatus, invalid: !['dnd', 'idle', 'invisible', 'online'].includes(process.env.PRESENCE_STATUS || '') },
         'SERVER_IDS': { items: serverIds, invalidItems: [...new Set(serverIds)].filter(serverId => !guildCache.has(serverId))   },
         'STATUS': { items: status, invalid: status && !['competing in', 'listening to', 'playing', 'watching'].some(start => status.toLowerCase().startsWith(start)) }
     }
