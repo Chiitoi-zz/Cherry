@@ -1,6 +1,6 @@
 import { formatStatuses, validate } from '@utils'
 import { Listener } from 'discord-akairo'
-import { Constants } from 'discord.js'
+import { Constants, PresenceData } from 'discord.js'
 
 export default class ReadyListener extends Listener {
     public constructor() {
@@ -14,14 +14,21 @@ export default class ReadyListener extends Listener {
         await validate(this.client)
 
         const statuses = formatStatuses()
+        const presenceData: Partial<PresenceData> = { status: this.client.config.presenceStatus }
         
-        if (statuses.length == 1)
-            this.client.user.setActivity(statuses[0].name, { type: statuses[0].type })
+        if (statuses.length == 1) {
+            presenceData.activity = { name: statuses[0].name, type: statuses[0].type }
+
+            await this.client.user.setPresence(presenceData)
+        }
         if (statuses.length > 1) {
             let index = 0
             this.client.setInterval(() => {
                 const { name, type } = statuses[index]
-                this.client.user.setActivity(name, { type })
+                
+                presenceData.activity = { name, type }
+
+                this.client.user.setPresence(presenceData)
 
                 if (index == statuses.length - 1)
                     index = 0
