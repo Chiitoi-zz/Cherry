@@ -11,7 +11,8 @@ export default class ReadyListener extends Listener {
     }
 
     public async exec() {
-        await validate(this.client)
+        if (this.client.config.validate)
+            await validate(this.client)
 
         const statuses = formatStatuses()
         const presenceData: Partial<PresenceData> = { status: this.client.config.presenceStatus }

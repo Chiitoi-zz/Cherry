@@ -12,3 +12,4 @@ export const STATUS_1 = process.env.STATUS_1?.length ? process.env.STATUS_1 : nu
 export const STATUS_2 = process.env.STATUS_2?.length ? process.env.STATUS_2 : null
 export const STATUS_3 = process.env.STATUS_3?.length ? process.env.STATUS_3 : null
 export const TOKEN = process.env.TOKEN?.length ? process.env.TOKEN : null
+export const VALIDATE = (process.env.VALIDATE === 'true')

@@ -1,4 +1,4 @@
-import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, DEBUG, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, PRESENCE_STATUS, SERVER_ID, STATUS_1, STATUS_2, STATUS_3, TOKEN } from '../config'
+import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, DEBUG, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, PRESENCE_STATUS, SERVER_ID, STATUS_1, STATUS_2, STATUS_3, TOKEN, VALIDATE } from '../config'
 import type { MessageEmbed, TextChannel } from 'discord.js'
 import pms from 'pretty-ms'
 
@@ -17,6 +17,7 @@ export interface CherryConfig {
     status2: string | null
     status3: string | null
     token: string | null
+    validate: boolean
 }
 
 export const config: CherryConfig = {
@@ -33,7 +34,8 @@ export const config: CherryConfig = {
     status1: STATUS_1,
     status2: STATUS_2,
     status3: STATUS_3,
-    token: TOKEN
+    token: TOKEN,
+    validate: VALIDATE
 }
 
 export const EMBEDS = {
