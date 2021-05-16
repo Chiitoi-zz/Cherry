@@ -10,3 +10,4 @@ export const PRESENCE_STATUS = (process.env.PRESENCE_STATUS?.length && ['dnd', '
 export const SERVER_ID = process.env.SERVER_ID?.length ? process.env.SERVER_ID : null
 export const STATUS = process.env.STATUS?.length ? process.env.STATUS : null
 export const TOKEN = process.env.TOKEN?.length ? process.env.TOKEN : null
+export const VALIDATE = (process.env.VALIDATE === 'true')

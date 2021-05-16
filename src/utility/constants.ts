@@ -1,4 +1,4 @@
-import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, DEBUG, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, PRESENCE_STATUS,SERVER_ID, STATUS, TOKEN } from '../config'
+import { BOT_CHANNEL_IDS, CATEGORY_IDS, CHECK_CHANNEL_ID, DEBUG, IGNORE_IDS, INTERVAL, LOG_CHANNEL_ID, PREFIX, PRESENCE_STATUS,SERVER_ID, STATUS, TOKEN, VALIDATE } from '../config'
 import type { MessageEmbed, TextChannel } from 'discord.js'
 import pms from 'pretty-ms'
 
@@ -15,6 +15,7 @@ export interface CherryConfig {
     serverId: string | null
     status: string | null
     token: string | null
+    validate: boolean
 }
 
 export const config: CherryConfig = {
@@ -29,7 +30,8 @@ export const config: CherryConfig = {
     presenceStatus: PRESENCE_STATUS,
     serverId: SERVER_ID,
     status: STATUS,
-    token: TOKEN
+    token: TOKEN,
+    validate: VALIDATE
 }
 
 export const EMBEDS = {
@@ -133,7 +135,7 @@ export const MESSAGES = {
         }
     },
     INFO: {
-        CHECK_START: (botName: string) => EMBEDS.INFO(`An invite check is currently in progress. Please give ${ botName } a few hours to check your channels.`),
+        CHECK_START: (botName: string) => EMBEDS.INFO(`An invite check is currently in progress. Please give ${ botName } some time to check your channels.`),
         CHECK_COMPLETE: EMBEDS.SUCCESS('Invite check complete!'),
         IN_CHECK: EMBEDS.INFO('You already have an invite check in progress. Please wait until your current invite check ends before running another one.'),
         NO_CATEGORIES: EMBEDS.INFO('There are no categories to check. Please provide category channel IDs in your `.env` file.'),
